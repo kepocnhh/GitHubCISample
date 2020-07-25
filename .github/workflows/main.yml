@@ -1,11 +1,15 @@
 name: Main workflow
 
-on: [push, pull_request]
+on: push
 
 jobs:
   build:
     runs-on: ubuntu-18.04
+    env:
+      GITHUB_OWNER: kepocnhh
+      GITHUB_REPO: GitHubCISample
     steps:
-    - run: |
-        echo "Hello ${{ github.event.inputs.name }}!"
-        echo "- in ${{ github.event.inputs.home }}!"
+    - run: echo ::set-env name=GIT_SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+    - run: git clone -q --depth=1 --branch=$GIT_SOURCE_BRANCH https://github.com/$GITHUB_OWNER/$GITHUB_REPO.git ./repository
+    - working-directory: repository
+      run: docker build --no-cache -f Dockerfile .
